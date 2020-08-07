@@ -30,7 +30,7 @@ jobs:
         with:
           version: latest
       - name: Login do docker.io
-        run: docker login -u golangci -p ${{ secrets.GOLANGCI_LINT_DOCKER_TOKEN }}
+        run: docker login -u ab1997 -p ${{ secrets.GOLANGCI_LINT_DOCKER_TOKEN }}
       - name: Create release
         uses: goreleaser/goreleaser-action@v2
         with:
