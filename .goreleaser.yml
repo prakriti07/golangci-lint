@@ -3,7 +3,7 @@ project_name: golangci-lint
 
 release:
   github:
-    owner: golangci
+    owner: prakriti07
     name: golangci-lint
 
 builds:
@@ -65,7 +65,7 @@ changelog:
 
 brews:
   - tap:
-      owner: golangci
+      owner: prakriti07
       name: homebrew-tap
     folder: Formula
     homepage: https://golangci.com
