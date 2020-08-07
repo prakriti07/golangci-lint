@@ -17,6 +17,18 @@ jobs:
           go-version: 1.14
       - name: Unshallow
         run: git fetch --prune --unshallow
+      - name: Prepare
+        id: prepare
+        run: |
+            TAG=${GITHUB_REF#refs/tags/}
+            MAJOR=${TAG%.*}
+            echo ::set-output name=tag_name::${TAG}
+            echo ::set-output name=major_tag::${MAJOR}
+      - name: set up buildx
+        id: buildx
+        uses: crazy-max/ghaction-docker-buildx@v1
+        with:
+          version: latest
       - name: Login do docker.io
         run: docker login -u golangci -p ${{ secrets.GOLANGCI_LINT_DOCKER_TOKEN }}
       - name: Create release
@@ -26,3 +38,29 @@ jobs:
           args: release --rm-dist
         env:
           GITHUB_TOKEN: ${{ secrets.GOLANGCI_LINT_TOKEN }}
+      - name: build (and publish) main image
+        env:
+          DOCKER_REPO: ${{ secrets.DOCKER_REPO }}
+        run: |
+          docker buildx build \
+            --platform linux/amd64,linux/arm64 \
+            --build-arg VERSION=${{ steps.prepare.outputs.tag_name }} \
+            --push \
+            -t ${DOCKER_REPO:-ab1997/golangci-lint}:${{ steps.prepare.outputs.tag_name }} \
+            -t ${DOCKER_REPO:-ab1997/golangci-lint}:${{ steps.prepare.outputs.major_tag }} \
+            -t ${DOCKER_REPO:-ab1997/golangci-lint}:latest \
+            -f build/Dockerfile \
+            .
+      - name: build (and publish) alpine image
+        env:
+          DOCKER_REPO: ${{ secrets.DOCKER_REPO }}
+        run: |
+          docker buildx build \
+            --platform linux/amd64,linux/arm64 \
+            --build-arg VERSION=${{ steps.prepare.outputs.tag_name }} \
+            --push \
+            -t ${DOCKER_REPO:-ab1997/golangci-lint}:${{ steps.prepare.outputs.tag_name }}-alpine \
+            -t ${DOCKER_REPO:-ab1997/golangci-lint}:${{ steps.prepare.outputs.major_tag }}-alpine \
+            -t ${DOCKER_REPO:-ab1997/golangci-lint}:latest-alpine \
+            -f build/Dockerfile.alpine \
+            .      
