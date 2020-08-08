@@ -31,13 +31,13 @@ jobs:
           version: latest
       - name: Login do docker.io
         run: docker login -u ab1997 -p ${{ secrets.GOLANGCI_LINT_DOCKER_TOKEN }}
-      #- name: Create release
-      #  uses: goreleaser/goreleaser-action@v2
-      #  with:
-      #    version: latest
-      #    args: release --rm-dist
-      #  env:
-      #    GITHUB_TOKEN: ${{ secrets.GOLANGCI_LINT_TOKEN }}
+      - name: Create release
+        uses: goreleaser/goreleaser-action@v2
+        with:
+          version: latest
+          args: release --rm-dist
+        env:
+          GITHUB_TOKEN: ${{ secrets.GOLANGCI_LINT_TOKEN }}
       - name: build (and publish) main image
         env:
           DOCKER_REPO: ${{ secrets.DOCKER_REPO }}
